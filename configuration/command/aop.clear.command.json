@@ -1,0 +1,6 @@
+{
+    "parent": "aop",
+    "command": "clear",
+    "description": "Clears the generated proxies.",
+    "service": "services.aop.command.aop.clear"
+}

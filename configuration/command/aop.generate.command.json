@@ -1,0 +1,6 @@
+{
+    "parent": "aop",
+    "command": "generate",
+    "description": "Generates proxy classes for all definitions in services.",
+    "service": "services.aop.command.aop.generate"
+}

@@ -1,0 +1,26 @@
+{
+    "aop.class.generator.factory": {
+        "class": "\\GrizzIt\\PhpAstGenerator\\Factory\\ClassGeneratorFactory"
+    },
+    "aop.proxy.generator": {
+        "class": "\\Ulrack\\AopExtension\\Component\\Generator\\ProxyGenerator",
+        "parameters": {
+            "resourceManager": "@{services.core.resource.manager}",
+            "classGeneratorFactory": "@{services.aop.class.generator.factory}"
+        }
+    },
+    "aop.configuration.combiner": {
+        "class": "\\Ulrack\\AopExtension\\Component\\Combiner\\ConfigurationCombiner",
+        "parameters": {
+            "cache": "@{invocations.aop.get.config.cache}"
+        }
+    },
+    "aop.aspect.weaver": {
+        "class": "\\Ulrack\\AopExtension\\Component\\Weaver\\AspectWeaver",
+        "parameters": {
+            "proxyGenerator": "@{services.aop.proxy.generator}",
+            "serviceFactory": "@{invocations.aop.service.factory}",
+            "combiner": "@{services.aop.configuration.combiner}"
+        }
+    }
+}

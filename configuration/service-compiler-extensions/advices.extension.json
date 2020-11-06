@@ -1,0 +1,19 @@
+{
+    "$schema": "service.compiler.extension.schema.json",
+    "class": "\\Ulrack\\Services\\Component\\Compiler\\Extension\\PassThroughCompiler",
+    "sortOrder": 10,
+    "key": "advices",
+    "schema": {
+        "type": "object",
+        "properties": {
+            "service": {
+                "type": "string"
+            },
+            "hook": {
+                "type": "string",
+                "enum": ["before", "around", "after"]
+            }
+        },
+        "required": ["service", "hook"]
+    }
+}
