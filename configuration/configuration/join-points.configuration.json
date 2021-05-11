@@ -1,5 +1,0 @@
-{
-    "$schema": "configuration.schema.json",
-    "key": "join-points",
-    "location": "configuration/join-points"
-}

@@ -8,8 +8,8 @@
 namespace Ulrack\AopExtension\Tests\Component\Compiler\Extension;
 
 use PHPUnit\Framework\TestCase;
-use Ulrack\Services\Common\ServiceRegistryInterface;
 use GrizzIt\Validator\Component\Logical\AlwaysValidator;
+use GrizzIt\Services\Common\Registry\ServiceRegistryInterface;
 use Ulrack\AopExtension\Component\Compiler\Extension\AopCompiler;
 
 /**
@@ -21,25 +21,12 @@ class AopCompilerTest extends TestCase
      * @covers ::compile
      * @covers ::sortAdvices
      * @covers ::compileConfiguration
-     * @covers ::__construct
      *
      * @return void
      */
     public function testCompileEmpty(): void
     {
-        $registry = $this->createMock(ServiceRegistryInterface::class);
-        $validator = new AlwaysValidator(true);
-        $getHooks = (function () {
-            return [];
-        });
-
-        $subject = new AopCompiler(
-            $registry,
-            'pointcuts',
-            $validator,
-            [],
-            $getHooks
-        );
+        $subject = new AopCompiler();
 
         $services = ['pointcuts' => []];
         $this->assertEquals(['pointcuts' => [
@@ -52,25 +39,12 @@ class AopCompilerTest extends TestCase
      * @covers ::compile
      * @covers ::sortAdvices
      * @covers ::compileConfiguration
-     * @covers ::__construct
      *
      * @return void
      */
     public function testCompile(): void
     {
-        $registry = $this->createMock(ServiceRegistryInterface::class);
-        $validator = new AlwaysValidator(true);
-        $getHooks = (function () {
-            return [];
-        });
-
-        $subject = new AopCompiler(
-            $registry,
-            'pointcuts',
-            $validator,
-            [],
-            $getHooks
-        );
+        $subject = new AopCompiler();
 
         $services = [
             'pointcuts' => [

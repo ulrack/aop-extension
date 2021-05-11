@@ -1,6 +1,0 @@
-{
-    "$schema": "service.factory.hook.schema.json",
-    "class": "\\Ulrack\\AopExtension\\Factory\\Hook\\ProxyHook",
-    "sortOrder": 100,
-    "key": "global"
-}

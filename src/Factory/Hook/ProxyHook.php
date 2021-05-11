@@ -8,34 +8,38 @@
 namespace Ulrack\AopExtension\Factory\Hook;
 
 use Ulrack\AopExtension\Common\WeaverInterface;
-use Ulrack\Services\Common\ServiceFactoryInterface;
-use Ulrack\Services\Common\Hook\AbstractServiceFactoryHook;
+use GrizzIt\Services\Common\Factory\ServiceFactoryHookInterface;
 
-class ProxyHook extends AbstractServiceFactoryHook
+class ProxyHook implements ServiceFactoryHookInterface
 {
     /**
      * Contains the aspect weaver.
      *
      * @var WeaverInterface
      */
-    private $aspectWeaver;
+    private ?WeaverInterface $aspectWeaver = null;
 
     /**
      * Retrieves the aspect weaver.
      *
+     * @param callable $create
+     *
      * @return WeaverInterface
      */
-    private function getAspectWeaver(): WeaverInterface
+    private function getAspectWeaver(callable $create): WeaverInterface
     {
         if (is_null($this->aspectWeaver)) {
-            /** @var ServiceFactoryInterface $serviceFactory */
-            $serviceFactory = $this->getInternalService('service-factory');
-            $this->aspectWeaver = $serviceFactory->create(
-                'services.aop.aspect.weaver'
-            );
-
+            $this->aspectWeaver = $create('services.aop.aspect.weaver');
+            $registry = $create('internal.core.service.compiler')->compile();
             $this->aspectWeaver->getCombiner()->setConfiguration(
-                $this->getServices()['pointcuts']
+                [
+                    'services' => $registry->getDefinitionByKey(
+                        'pointcuts.services'
+                    ),
+                    'classes' => $registry->getDefinitionByKey(
+                        'pointcuts.classes'
+                    )
+                ]
             );
         }
 
@@ -43,34 +47,49 @@ class ProxyHook extends AbstractServiceFactoryHook
     }
 
     /**
-     * Hooks in after the creation of a service.
+     * Hooks in before the creation of a service.
      *
-     * @param string $serviceKey
-     * @param mixed $return
-     * @param array $parameters
+     * @param string $key
+     * @param mixed $definition
+     * @param callable $create
      *
      * @return array
      */
-    public function postCreate(
-        string $serviceKey,
-        $return,
-        array $parameters = []
+    public function preCreate(
+        string $key,
+        mixed $definition,
+        callable $create
     ): array {
+        return [$key, $definition];
+    }
+
+    /**
+     * Hooks in after the creation of a service.
+     *
+     * @param string $key
+     * @param mixed $definition
+     * @param mixed $return
+     * @param callable $create
+     *
+     * @return mixed
+     */
+    public function postCreate(
+        string $key,
+        mixed $definition,
+        mixed $return,
+        callable $create
+    ): mixed {
         if (
             is_object($return) &&
-            strpos($serviceKey, '.aop.') === false &&
-            strpos($serviceKey, '.core.') === false
+            strpos($key, '.aop.') === false &&
+            strpos($key, '.core.') === false
         ) {
-            $return = $this->getAspectWeaver()->__invoke(
-                $serviceKey,
+            $return = $this->getAspectWeaver($create)->__invoke(
+                $key,
                 $return
             );
         }
 
-        return [
-            'serviceKey' => $serviceKey,
-            'return' => $return,
-            'parameters' => $parameters
-        ];
+        return $return;
     }
 }

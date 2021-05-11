@@ -11,8 +11,8 @@ use stdClass;
 use PHPUnit\Framework\TestCase;
 use Ulrack\AopExtension\Common\CombinerInterface;
 use Ulrack\AopExtension\Common\GeneratorInterface;
-use Ulrack\Services\Common\ServiceFactoryInterface;
 use Ulrack\AopExtension\Component\Weaver\AspectWeaver;
+use GrizzIt\Services\Common\Factory\ServiceFactoryInterface;
 
 /**
  * @coversDefaultClass \Ulrack\AopExtension\Component\Weaver\AspectWeaver

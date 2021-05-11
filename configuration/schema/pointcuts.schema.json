@@ -1,0 +1,17 @@
+{
+    "$id": "pointcuts.schema.json",
+    "type": "object",
+    "properties": {
+        "join-point": {
+            "type": "string"
+        },
+        "advice": {
+            "type": "string"
+        },
+        "sortOrder": {
+            "type": "integer",
+            "default": 1000
+        }
+    },
+    "required": ["join-point", "advice"]
+}

@@ -15,24 +15,27 @@ configurations can be declared per file.
 
 Join-points describe the point on the class where plugins can be added. This
 can only be done for non `__construct` public methods. In order to register a
-`join-point`, create a directory under `configuration/join-points` with the
+`join-point`, create a file under `configuration/services` with the
 following contents:
 ```json
 {
-    "invoke-all-endpoints": {
-        "class": "\\Ulrack\\Web\\Common\\Endpoint\\EndpointInterface",
-        "method": "__invoke",
-        "explicit": false
-    },
-    "invoke-my-endpoint": {
-        "class": "\\MyVendor\\MyProject\\MyEndpoint",
-        "method": "__invoke",
-        "explicit": true
-    },
-    "invoke-home-endpoint": {
-        "service": "services.default-home-endpoint",
-        "method": "__invoke"
-    },
+    "join-points": {
+        "invoke-all-endpoints": {
+            "class": "\\Ulrack\\Web\\Common\\Endpoint\\EndpointInterface",
+            "method": "__invoke",
+            "explicit": false
+        },
+        "invoke-my-endpoint": {
+            "class": "\\MyVendor\\MyProject\\MyEndpoint",
+            "method": "__invoke",
+            "explicit": true
+        },
+        "invoke-home-endpoint": {
+            "service": "services.default-home-endpoint",
+            "method": "__invoke"
+        }
+    }
+
 }
 ```
 
@@ -52,22 +55,24 @@ through that specific service invocation.
 ## Advices
 
 Advices describe the usage of the plugins in the system. To register an advice,
-create a file in the directory `configuration/advices` with the following
+create a file in the directory `configuration/services` with the following
 contents:
 
 ```json
 {
-    "foo-after": {
-        "service": "services.advice.service",
-        "hook": "after"
-    },
-    "foo-before": {
-        "service": "services.advice.service",
-        "hook": "before"
-    },
-    "foo-around": {
-        "service": "services.advice.service",
-        "hook": "around"
+    "advices": {
+        "foo-after": {
+            "service": "services.advice.service",
+            "hook": "after"
+        },
+        "foo-before": {
+            "service": "services.advice.service",
+            "hook": "before"
+        },
+        "foo-around": {
+            "service": "services.advice.service",
+            "hook": "around"
+        }
     }
 }
 ```
@@ -167,22 +172,24 @@ class MyPlugin implements PluginInterface
 ## Pointcuts
 
 The `pointcut` describes the combination of an `advice` and a `join-point`. In
-order to register a `join-point` create a file in `configuration/pointcuts` with
+order to register a `join-point` create a file in `configuration/services` with
 the following content:
 ```json
 {
-    "invoke-foo-around-all-endpoints": {
-        "join-point": "invoke-all-endpoints",
-        "advice": "foo-around",
-        "sortOrder": 500
-    },
-    "invoke-foo-before-my-endpoint": {
-        "join-point": "invoke-my-endpoint",
-        "advice": "foo-before"
-    },
-    "invoke-foo-after-home-endpoint": {
-        "join-point": "invoke-home-endpoint",
-        "advice": "foo-after"
+    "pointcuts": {
+        "invoke-foo-around-all-endpoints": {
+            "join-point": "invoke-all-endpoints",
+            "advice": "foo-around",
+            "sortOrder": 500
+        },
+        "invoke-foo-before-my-endpoint": {
+            "join-point": "invoke-my-endpoint",
+            "advice": "foo-before"
+        },
+        "invoke-foo-after-home-endpoint": {
+            "join-point": "invoke-home-endpoint",
+            "advice": "foo-after"
+        }
     }
 }
 ```

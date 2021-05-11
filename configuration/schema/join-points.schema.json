@@ -1,0 +1,34 @@
+{
+    "$id": "join-points.schema.json",
+    "type": "object",
+    "oneOf": [
+        {
+            "properties": {
+                "service": {
+                    "type": "string",
+                    "pattern": "^[\\.\\w-]+$"
+                },
+                "method": {
+                    "type": "string"
+                }
+            },
+            "required": ["service", "method"]
+        },
+        {
+            "properties": {
+                "class": {
+                    "type": "string",
+                    "pattern": "^(\\\\[A-z0-9]+)+$"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "explicit": {
+                    "type": "boolean",
+                    "default": false
+                }
+            },
+            "required": ["class", "method"]
+        }
+    ]
+}

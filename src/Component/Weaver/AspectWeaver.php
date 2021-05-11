@@ -11,7 +11,7 @@ use Ulrack\AopExtension\Factory\ProxyFactory;
 use Ulrack\AopExtension\Common\WeaverInterface;
 use Ulrack\AopExtension\Common\CombinerInterface;
 use Ulrack\AopExtension\Common\GeneratorInterface;
-use Ulrack\Services\Common\ServiceFactoryInterface;
+use GrizzIt\Services\Common\Factory\ServiceFactoryInterface;
 
 class AspectWeaver implements WeaverInterface
 {

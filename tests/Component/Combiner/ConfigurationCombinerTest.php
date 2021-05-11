@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use GrizzIt\Cache\Common\CacheInterface;
 use GrizzIt\Storage\Component\ObjectStorage;
 use Ulrack\AopExtension\Command\AopClearCommand;
-use Ulrack\Command\Common\Command\CommandInterface;
+use GrizzIt\Command\Common\Command\CommandInterface;
 use Ulrack\AopExtension\Component\Combiner\ConfigurationCombiner;
 
 /**

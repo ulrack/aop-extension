@@ -10,11 +10,13 @@ namespace Ulrack\AopExtension\Tests\Command;
 use PHPUnit\Framework\TestCase;
 use GrizzIt\Task\Common\TaskListInterface;
 use Ulrack\AopExtension\Common\CombinerInterface;
-use Ulrack\Command\Common\Command\InputInterface;
+use GrizzIt\Command\Common\Command\InputInterface;
 use Ulrack\AopExtension\Common\GeneratorInterface;
-use Ulrack\Command\Common\Command\OutputInterface;
+use GrizzIt\Command\Common\Command\OutputInterface;
+use GrizzIt\Configuration\Common\RegistryInterface;
 use Ulrack\AopExtension\Command\AopGenerateCommand;
-use Ulrack\Services\Common\ServiceCompilerInterface;
+use GrizzIt\Services\Common\Compiler\ServiceCompilerInterface;
+use GrizzIt\Services\Common\Registry\ServiceRegistryInterface;
 
 /**
  * @coversDefaultClass \Ulrack\AopExtension\Command\AopGenerateCommand
@@ -32,29 +34,54 @@ class AopGenerateCommandTest extends TestCase
         $proxyGenerator = $this->createMock(GeneratorInterface::class);
         $combiner = $this->createMock(CombinerInterface::class);
         $serviceCompiler = $this->createMock(ServiceCompilerInterface::class);
+        $registry = $this->createMock(RegistryInterface::class);
+        $serviceRegistry = $this->createMock(ServiceRegistryInterface::class);
         $subject = new AopGenerateCommand(
             $proxyGenerator,
             $combiner,
-            $serviceCompiler
+            $serviceCompiler,
+            $registry
         );
 
         $output = $this->createMock(OutputInterface::class);
         $serviceCompiler->expects(static::once())
             ->method('compile')
-            ->willReturn(
-                [
-                    'services' => [
-                        'foo' => [
-                            'class' => 'bar'
-                        ]
-                    ],
-                    'pointcuts' => ['pointcut-config']
-                ]
+            ->willReturn($serviceRegistry);
+
+        $serviceRegistry->expects(static::exactly(3))
+            ->method('getDefinitionByKey')
+            ->withConsecutive(
+                ['pointcuts.services'],
+                ['pointcuts.classes'],
+                ['services.foo']
+            )->willReturnOnConsecutiveCalls(
+                ['pointcut-service-config'],
+                ['pointcut-class-config'],
+                ['class' => 'foo']
             );
 
         $combiner->expects(static::once())
             ->method('setConfiguration')
-            ->with(['pointcut-config']);
+            ->with([
+                'services' => ['pointcut-service-config'],
+                'classes' => ['pointcut-class-config']
+            ]);
+
+        $registry->expects(static::once())
+            ->method('toArray')
+            ->willReturn(
+                [
+                    'services' => [
+                        [
+                            'services' => [
+                                'foo' => [
+                                    'class' => 'foo'
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            );
 
         $output->expects(static::once())
             ->method('outputProgressBar')
@@ -65,12 +92,12 @@ class AopGenerateCommandTest extends TestCase
 
         $combiner->expects(static::once())
             ->method('__invoke')
-            ->with('services.foo', 'bar')
+            ->with('services.foo', 'foo')
             ->willReturn(['foo']);
 
         $proxyGenerator->expects(static::once())
             ->method('generate')
-            ->with('bar');
+            ->with('foo');
 
         $subject->__invoke(
             $this->createMock(InputInterface::class),

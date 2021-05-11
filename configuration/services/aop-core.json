@@ -1,26 +1,125 @@
 {
-    "aop.class.generator.factory": {
-        "class": "\\GrizzIt\\PhpAstGenerator\\Factory\\ClassGeneratorFactory"
-    },
-    "aop.proxy.generator": {
-        "class": "\\Ulrack\\AopExtension\\Component\\Generator\\ProxyGenerator",
-        "parameters": {
-            "resourceManager": "@{services.core.resource.manager}",
-            "classGeneratorFactory": "@{services.aop.class.generator.factory}"
+    "parameters": {
+        "service.configuration.validation.advices": {
+            "key": "advices",
+            "schema": "advices.schema.json"
+        },
+        "service.configuration.validation.join-points": {
+            "key": "join-points",
+            "schema": "join-points.schema.json"
+        },
+        "service.configuration.validation.pointcuts": {
+            "key": "pointcuts",
+            "schema": "pointcuts.schema.json"
         }
     },
-    "aop.configuration.combiner": {
-        "class": "\\Ulrack\\AopExtension\\Component\\Combiner\\ConfigurationCombiner",
-        "parameters": {
-            "cache": "@{invocations.aop.get.config.cache}"
+    "services": {
+        "aop.class.generator.factory": {
+            "class": "\\GrizzIt\\PhpAstGenerator\\Factory\\ClassGeneratorFactory"
+        },
+        "aop.proxy.generator": {
+            "class": "\\Ulrack\\AopExtension\\Component\\Generator\\ProxyGenerator",
+            "parameters": {
+                "resourceManager": "@{internal.core.resource.manager}",
+                "classGeneratorFactory": "@{services.aop.class.generator.factory}"
+            }
+        },
+        "aop.configuration.combiner": {
+            "class": "\\Ulrack\\AopExtension\\Component\\Combiner\\ConfigurationCombiner",
+            "parameters": {
+                "cache": "@{invocations.aop.get.config.cache}"
+            }
+        },
+        "aop.aspect.weaver": {
+            "class": "\\Ulrack\\AopExtension\\Component\\Weaver\\AspectWeaver",
+            "parameters": {
+                "proxyGenerator": "@{services.aop.proxy.generator}",
+                "serviceFactory": "@{internal.core.service.factory}",
+                "combiner": "@{services.aop.configuration.combiner}"
+            }
+        },
+        "aop.command.aop.clear": {
+            "class": "\\Ulrack\\AopExtension\\Command\\AopClearCommand",
+            "parameters": {
+                "generatedDirectory": "@{invocations.aop.get.generated.directory}"
+            }
+        },
+        "aop.command.aop.generate": {
+            "class": "\\Ulrack\\AopExtension\\Command\\AopGenerateCommand",
+            "parameters": {
+                "proxyGenerator": "@{services.aop.proxy.generator}",
+                "combiner": "@{services.aop.configuration.combiner}",
+                "serviceCompiler": "@{invocations.aop.service.compiler}",
+                "configRegistry": "@{invocations.get.config.registry}"
+            }
+        },
+        "service.compiler.aop": {
+            "class": "\\Ulrack\\AopExtension\\Component\\Compiler\\Extension\\AopCompiler"
+        },
+        "service.factory.hook.aop": {
+            "class": "\\Ulrack\\AopExtension\\Factory\\Hook\\ProxyHook"
         }
     },
-    "aop.aspect.weaver": {
-        "class": "\\Ulrack\\AopExtension\\Component\\Weaver\\AspectWeaver",
-        "parameters": {
-            "proxyGenerator": "@{services.aop.proxy.generator}",
-            "serviceFactory": "@{invocations.aop.service.factory}",
-            "combiner": "@{services.aop.configuration.combiner}"
+    "invocations": {
+        "aop.get.config.cache": {
+            "service": "internal.core.cache.manager",
+            "method": "getCache",
+            "parameters": {
+                "key": "aop"
+            }
+        },
+        "aop.get.generated.directory": {
+            "service": "services.aop.proxy.generator",
+            "method": "getGeneratedDirectory"
+        },
+        "aop.service.compiler": {
+            "service": "internal.core.service.manager",
+            "method": "getServiceCompiler"
+        },
+        "add.aop.service.compiler": {
+            "service": "internal.core.service.compiler",
+            "method": "addExtension",
+            "parameters": {
+                "extension": "@{services.service.compiler.aop}",
+                "sortOrder": 100
+            },
+            "cache": true
+        },
+        "add.aop.service.factory.hook": {
+            "service": "internal.core.service.factory",
+            "method": "addHook",
+            "parameters": {
+                "scope": "global",
+                "hook": "@{services.service.factory.hook.aop}",
+                "sortOrder": 100
+            },
+            "cache": true
+        },
+        "get.config.registry": {
+            "service": "internal.core.configuration.manager",
+            "method": "getConfigRegistry"
+        }
+    },
+    "tags": {
+        "add.aop.compiler": {
+            "trigger": "triggers.core.service.compilers",
+            "service": "invocations.add.aop.service.compiler"
+        },
+        "add.service.validation.advices": {
+            "service": "parameters.service.configuration.validation.advices",
+            "trigger": "triggers.service.configuration.validation"
+        },
+        "add.service.validation.join-points": {
+            "service": "parameters.service.configuration.validation.join-points",
+            "trigger": "triggers.service.configuration.validation"
+        },
+        "add.service.validation.pointcuts": {
+            "service": "parameters.service.configuration.validation.pointcuts",
+            "trigger": "triggers.service.configuration.validation"
+        },
+        "add.aop.service.factory.hook": {
+            "trigger": "triggers.core.service.hooks",
+            "service": "invocations.add.aop.service.factory.hook"
         }
     }
 }

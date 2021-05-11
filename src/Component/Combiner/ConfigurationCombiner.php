@@ -121,7 +121,7 @@ class ConfigurationCombiner implements CombinerInterface
         array $configuration,
         string $service
     ): array {
-        $serviceConfig = $configuration['services'];
+        $serviceConfig = $configuration['services'] ?? [];
 
         if (isset($serviceConfig[$service])) {
             foreach ($serviceConfig[$service] as $method => $config) {
@@ -150,7 +150,7 @@ class ConfigurationCombiner implements CombinerInterface
         array $configuration,
         string $className
     ): array {
-        foreach ($configuration['classes'] as $class => $classConfig) {
+        foreach ($configuration['classes'] ?? [] as $class => $classConfig) {
             if ($class !== $className && is_a($className, $class, true)) {
                 foreach ($classConfig as $method => $config) {
                     if (($config['explicit'] ?? false) === false) {

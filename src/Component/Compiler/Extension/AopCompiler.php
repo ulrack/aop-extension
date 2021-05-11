@@ -7,9 +7,9 @@
 
 namespace Ulrack\AopExtension\Component\Compiler\Extension;
 
-use Ulrack\Services\Common\AbstractServiceCompilerExtension;
+use GrizzIt\Services\Common\Compiler\ServiceCompilerExtensionInterface;
 
-class AopCompiler extends AbstractServiceCompilerExtension
+class AopCompiler implements ServiceCompilerExtensionInterface
 {
     /**
      * Compile the services.
@@ -20,12 +20,6 @@ class AopCompiler extends AbstractServiceCompilerExtension
      */
     public function compile(array $services): array
     {
-        $services = $this->preCompile(
-            $services,
-            $this->getParameters()
-        )['services'];
-
-        $inputServices = $services;
         $services['pointcuts'] = $this->compileConfiguration(
             $services['advices'] ?? [],
             $services['join-points'] ?? [],
@@ -35,11 +29,7 @@ class AopCompiler extends AbstractServiceCompilerExtension
         unset($services['advices']);
         unset($services['join-points']);
 
-        return $this->postCompile(
-            $inputServices,
-            $services,
-            $this->getParameters()
-        )['return'];
+        return $services;
     }
 
     /**

@@ -8,9 +8,9 @@
 namespace Ulrack\AopExtension\Command;
 
 use GrizzIt\Vfs\Common\FileSystemInterface;
-use Ulrack\Command\Common\Command\InputInterface;
-use Ulrack\Command\Common\Command\OutputInterface;
-use Ulrack\Command\Common\Command\CommandInterface;
+use GrizzIt\Command\Common\Command\InputInterface;
+use GrizzIt\Command\Common\Command\OutputInterface;
+use GrizzIt\Command\Common\Command\CommandInterface;
 
 class AopClearCommand implements CommandInterface
 {
@@ -19,7 +19,7 @@ class AopClearCommand implements CommandInterface
      *
      * @var FileSystemInterface
      */
-    private $generatedDirectory;
+    private FileSystemInterface $generatedDirectory;
 
     /**
      * Constructor.

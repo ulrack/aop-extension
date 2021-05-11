@@ -10,8 +10,8 @@ namespace Ulrack\AopExtension\Tests\Command;
 use PHPUnit\Framework\TestCase;
 use GrizzIt\Vfs\Common\FileSystemInterface;
 use Ulrack\AopExtension\Command\AopClearCommand;
-use Ulrack\Command\Common\Command\InputInterface;
-use Ulrack\Command\Common\Command\OutputInterface;
+use GrizzIt\Command\Common\Command\InputInterface;
+use GrizzIt\Command\Common\Command\OutputInterface;
 
 /**
  * @coversDefaultClass \Ulrack\AopExtension\Command\AopClearCommand

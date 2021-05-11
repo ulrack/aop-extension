@@ -1,0 +1,14 @@
+{
+    "$id": "advices.schema.json",
+    "type": "object",
+    "properties": {
+        "service": {
+            "type": "string"
+        },
+        "hook": {
+            "type": "string",
+            "enum": ["before", "around", "after"]
+        }
+    },
+    "required": ["service", "hook"]
+}

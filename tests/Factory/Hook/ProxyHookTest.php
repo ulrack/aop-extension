@@ -12,7 +12,8 @@ use PHPUnit\Framework\TestCase;
 use Ulrack\AopExtension\Common\WeaverInterface;
 use Ulrack\AopExtension\Factory\Hook\ProxyHook;
 use Ulrack\AopExtension\Common\CombinerInterface;
-use Ulrack\Services\Common\ServiceFactoryInterface;
+use GrizzIt\Services\Common\Factory\ServiceFactoryInterface;
+use GrizzIt\Services\Common\Compiler\ServiceCompilerInterface;
 
 /**
  * @coversDefaultClass \Ulrack\AopExtension\Factory\Hook\ProxyHook
@@ -21,8 +22,8 @@ class ProxyHookTest extends TestCase
 {
     /**
      * @covers ::postCreate
+     * @covers ::preCreate
      * @covers ::getAspectWeaver
-     * @covers ::__construct
      *
      * @param string $serviceKey
      * @param mixed $return
@@ -39,6 +40,7 @@ class ProxyHookTest extends TestCase
     ): void {
         $serviceFactory = $this->createMock(ServiceFactoryInterface::class);
         $weaver = $this->createMock(WeaverInterface::class);
+        $serviceCompiler = $this->createMock(ServiceCompilerInterface::class);
         $serviceFactory->method('create')
             ->with('services.aop.aspect.weaver')
             ->willReturn($weaver);
@@ -50,19 +52,21 @@ class ProxyHookTest extends TestCase
         $weaver->method('getCombiner')
             ->willReturn($this->createMock(CombinerInterface::class));
 
-        $key = 'global';
-        $services = ['pointcuts' => []];
-        $internalServices = ['service-factory' => $serviceFactory];
-        $subject = new ProxyHook($key, [], $services, $internalServices);
+        $create = function (string $key) use ($weaver, $serviceCompiler) {
+            if ($key === 'services.aop.aspect.weaver') {
+                return $weaver;
+            }
 
+            if ($key === 'internal.core.service.compiler') {
+                return $serviceCompiler;
+            }
+        };
 
+        $subject = new ProxyHook();
+        $subject->preCreate('key', 'definition', $create);
         $this->assertEquals(
-            [
-                'serviceKey' => $serviceKey,
-                'return' => $expectedReturn,
-                'parameters' => []
-            ],
-            $subject->postCreate($serviceKey, $return, [])
+            $expectedReturn,
+            $subject->postCreate($serviceKey, [], $return, $create)
         );
     }
 

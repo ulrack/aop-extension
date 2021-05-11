@@ -10,11 +10,12 @@ namespace Ulrack\AopExtension\Command;
 use GrizzIt\Task\Component\TaskList;
 use GrizzIt\Task\Component\Task\ConfigurableTask;
 use Ulrack\AopExtension\Common\CombinerInterface;
-use Ulrack\Command\Common\Command\InputInterface;
+use GrizzIt\Command\Common\Command\InputInterface;
 use Ulrack\AopExtension\Common\GeneratorInterface;
-use Ulrack\Command\Common\Command\OutputInterface;
-use Ulrack\Command\Common\Command\CommandInterface;
-use Ulrack\Services\Common\ServiceCompilerInterface;
+use GrizzIt\Command\Common\Command\OutputInterface;
+use GrizzIt\Configuration\Common\RegistryInterface;
+use GrizzIt\Command\Common\Command\CommandInterface;
+use GrizzIt\Services\Common\Compiler\ServiceCompilerInterface;
 
 class AopGenerateCommand implements CommandInterface
 {
@@ -23,21 +24,28 @@ class AopGenerateCommand implements CommandInterface
      *
      * @var GeneratorInterface
      */
-    private $proxyGenerator;
+    private GeneratorInterface $proxyGenerator;
 
     /**
      * Contains the configuration combiner.
      *
      * @var CombinerInterface
      */
-    private $combiner;
+    private CombinerInterface $combiner;
 
     /**
      * Contains the service compiler.
      *
      * @var ServiceCompilerInterface
      */
-    private $serviceCompiler;
+    private ServiceCompilerInterface $serviceCompiler;
+
+    /**
+     * Contains configuration registry.
+     *
+     * @var RegistryInterface
+     */
+    private RegistryInterface $configRegistry;
 
     /**
      * Constructor.
@@ -49,11 +57,13 @@ class AopGenerateCommand implements CommandInterface
     public function __construct(
         GeneratorInterface $proxyGenerator,
         CombinerInterface $combiner,
-        ServiceCompilerInterface $serviceCompiler
+        ServiceCompilerInterface $serviceCompiler,
+        RegistryInterface $configRegistry
     ) {
         $this->proxyGenerator = $proxyGenerator;
         $this->combiner = $combiner;
         $this->serviceCompiler = $serviceCompiler;
+        $this->configRegistry = $configRegistry;
     }
 
     /**
@@ -68,12 +78,32 @@ class AopGenerateCommand implements CommandInterface
         InputInterface $input,
         OutputInterface $output
     ): void {
-        $services = $this->serviceCompiler->compile();
+        $registry = $this->serviceCompiler->compile();
         $taskList = new TaskList();
         $combiner = $this->combiner;
-        $combiner->setConfiguration($services['pointcuts']);
+        $combiner->setConfiguration(
+            [
+                'services' => $registry->getDefinitionByKey(
+                    'pointcuts.services'
+                ),
+                'classes' => $registry->getDefinitionByKey(
+                    'pointcuts.classes'
+                )
+            ]
+        );
+
+        $configKeys = array_keys(
+            array_merge(
+                ...array_column(
+                    $this->configRegistry->toArray()['services'],
+                    'services'
+                )
+            )
+        );
+
         $proxyGenerator = $this->proxyGenerator;
-        foreach ($services['services'] as $service => $configuration) {
+        foreach ($configKeys as $service) {
+            $configuration = $registry->getDefinitionByKey('services.' . $service);
             $task = new ConfigurableTask((function () use (
                 $service,
                 $configuration,
